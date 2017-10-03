@@ -1,0 +1,22 @@
+{
+  "title": "kriptobabushka",
+  "name": "robot",
+  "version": "0.0.1",
+  "description": "A basic add-on",
+  "main": "index.js",
+  "author": "lancer",
+  "dependencies": {
+    "golos-addons": "^1.0.4",
+    "golos-js": "^0.5.28"
+  },
+  "devDependencies": {
+    "css-loader": "^0.28.7",
+    "extract-text-webpack-plugin": "^3.0.0",
+    "style-loader": "^0.18.2",
+    "webpack": "^3.5.6"
+  },
+  "license": "AGPL v3",
+  "keywords": [
+    "jetpack"
+  ]
+}

@@ -1,0 +1,13 @@
+{
+    "plugins": {
+        "es_modules": {}
+	, "node": {}
+	, "requirejs": {"baseURL": "./", "paths":{}
+      }
+    },
+    "libs": [
+        "ecma5",
+        "ecma6"
+    ],
+    "ecmaVersion": 6
+}
