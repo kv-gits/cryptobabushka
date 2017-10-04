@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+
+<html>
+<head>
+    <meta charset="utf-8">
+    <link rel="stylesheet" type="text/css" href="style.css">
+</head>
+
+<body>
+    <div id="container">
+        <div id="enter_form">
+            Node:
+            <br> 
+            <input class='field' type="text" name="node" value="wss://ws.golos.io"><br>
+            <br>
+            Account:
+            <br> 
+            <input class='field' type="text" name="accname"><br>
+            <br>
+            Wif: 
+            <br>
+            <input class='field' type="text" name="wif" size=52><br>
+            <br>
+            Permlink:
+            <br>
+            <input class='field' type="text" name="pl" size=52>
+            <br>
+            <br>
+            Percent:
+            <br>
+            <input class='field' type="text" name="percent" size=5 value=80>
+            <br>
+            <br>
+            Memo:
+            <br>
+            <input class='field' type="text" name="memo" size=80>
+            <br>
+            <br>
+            <div>
+                <input type="checkbox" id="broadcast" name="broadcast" value="broadcast">
+                <label for="broadcast">Broadcast</label>
+            </div>
+            <br><br>
+            <input id = "perform" type="submit" value="Сделать перевод" >
+        </div>
+        <div id="exclude_form">
+            Список исключений (без запятых)
+            <br>
+            <textarea id="exclude" name="exclude-text" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false"></textarea>
+        </div>
+    </div>
+    
+    
+    <br>
+    Консоль
+    <br>
+    <input id = "clear-button" type="button" value="Очистить консоль" >
+    <textarea id="console"></textarea>
+    <script src="./config.js"></script>
+    <script src="./bundle.js"></script>
+</body>
+</html>

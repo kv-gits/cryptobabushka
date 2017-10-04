@@ -1,0 +1,19 @@
+#console {
+    width: 100%;
+    height: 400px;
+    resize: none;
+}
+
+#exclude {
+    width: 360px;
+    height: 400px;
+    resize: none;
+}
+
+#container {
+    display: flex; /* or inline-flex */
+}
+
+#exclude_form {
+    margin-left: 20px;
+}
