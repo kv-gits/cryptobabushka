@@ -2,7 +2,7 @@
   "title": "cryptobabushka",
   "name": "cryptobabushka",
   "version": "0.0.1",
-  "description": "A basic add-on",
+  "description": "A basic script for babushkas",
   "main": "index.js",
   "author": "kvg",
   "dependencies": {
@@ -15,7 +15,7 @@
     "style-loader": "^0.18.2",
     "webpack": "^3.5.6"
   },
-  "license": "IPS",
+  "license": "ISC",
   "keywords": [
     "cryptobabushka"
   ]
