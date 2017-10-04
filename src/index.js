@@ -1,6 +1,12 @@
 const ga = require("golos-addons")
 golos = ga.golos
 const golosjs = require("golos-js")
+// console.log(golosjs)
+
+const makeTransfer = async function(wif, userid, receiver, amount, memo) {
+    await golosjs.broadcast.transferAsync(wif, userid, 
+        receiver, amount, memo);
+}
 
 function getNode(){
     var val = document.getElementsByName("node")[0].value
@@ -146,14 +152,18 @@ async function transfer(voter, amount, memo, broadcast, user, key) {
         for(; !sent && i < 30; i++) {
             try {
                 if(broadcast) {
-                    await golos.transfer(key, user, voter, amount, memo)
+                    global.broadcast = broadcast
+                    // var res = await golos.transfer(key, user, voter, amount, memo)
+                    await makeTransfer(key, user, voter, amount, memo)
+                    console.log("transfered", key, user, res)
                 } else {
                     console.log("no broadcasting, no transfer");
                     consoleLog("no broadcasting, no transfer")
                 }
                 sent = true;
             } catch(e) {
-                consoleLog(golos.getExceptionCause(e))
+                console.log("Err transfer")
+                consoleLog(e)
             }
         }    
         if(i >= 30) {
@@ -193,6 +203,7 @@ async function transfer(voter, amount, memo, broadcast, user, key) {
         failed.map( function(val,i,ar){
             consoleLogNoLinum(val)
         })
+        lines = 1
     }
     
 //-----------------------------------------------------------------------------
