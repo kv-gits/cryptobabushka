@@ -1,10 +1,10 @@
 {
-  "title": "kriptobabushka",
-  "name": "robot",
+  "title": "cryptobabushka",
+  "name": "cryptobabushka",
   "version": "0.0.1",
   "description": "A basic add-on",
   "main": "index.js",
-  "author": "lancer",
+  "author": "kvg",
   "dependencies": {
     "golos-addons": "^1.0.4",
     "golos-js": "^0.5.28"
@@ -15,8 +15,8 @@
     "style-loader": "^0.18.2",
     "webpack": "^3.5.6"
   },
-  "license": "AGPL v3",
+  "license": "IPS",
   "keywords": [
-    "jetpack"
+    "cryptobabushka"
   ]
 }

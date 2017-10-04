@@ -2,6 +2,13 @@ const ga = require("golos-addons")
 golos = ga.golos
 const golosjs = require("golos-js")
 
+function getNode(){
+    var val = document.getElementsByName("node")[0].value
+    console.log("Node = ", val)
+    consoleLog("Node = " + val)
+    return val
+}
+
 
 function getAccname(){
     var val = document.getElementsByName("accname")[0].value
@@ -33,7 +40,7 @@ function getMemo() {
     return val
 }
 
-function getBroadCast(){
+function getBroadcast(){
     var br = document.getElementsByName("broadcast")[0].checked
     console.log("Broadcast = ", br)
     return br
@@ -102,98 +109,153 @@ function sumRshares(content) {
     return sum;
 }
 
+function scanBypass() {
+    var text = document.getElementsByName("exclude-text")[0].value
+    res = []
+    var ar = text.split('\n')
+    ar.map(function callback(currentValue, index, array) {
+        // Return element for new_array
+        // console.log(currentValue)
+        res.push(currentValue.toString().trim())
+        // console.log(array[index])
+    })
+    // console.log(res)
+    bypass = res
+}
 
-async function transfer(voter, amount, memo, broadcast) {
-    
-        log.info("transfer " + amount + " to " + voter + " (" + memo + ")");
+//-----------------------------------------------------------------------------
+// consoleLog
+lines = 1
+function consoleLog(line) {
+    var consolearea = document.getElementById("console")
+    consolearea.value += (lines.toString() + " " + line.toString() + "\n")
+    lines++
+}
+function consoleLogNoLinum(line){
+    var consolearea = document.getElementById("console")
+    consolearea.value += (lines.toString() + " " + line.toString() + "\n")
+}
+
+//----------------------------------------------------------------------------
+// Перевод
+var failed = []
+async function transfer(voter, amount, memo, broadcast, user, key) {
+        consoleLog("transfer " + amount + " to " + voter + " (" + memo + ")");
         let sent = false;
         let i = 0;
         for(; !sent && i < 30; i++) {
             try {
                 if(broadcast) {
-                    await golos.transfer(KEY, USER, voter, amount, memo);
+                    await golos.transfer(key, user, voter, amount, memo)
                 } else {
-                    log.info("no broadcasting, no transfer");
+                    console.log("no broadcasting, no transfer");
+                    consoleLog("no broadcasting, no transfer")
                 }
                 sent = true;
             } catch(e) {
-                log.error(golos.getExceptionCause(e));
+                consoleLog(golos.getExceptionCause(e))
             }
         }    
-        if(i >= 3) {
-            log.error("was unable to transfer after 3 tries, exiting");
-            process.exit(1);
+        if(i >= 30) {
+            log.error("was unable to transfer after 30 tries, exiting")
+            failed.push(voter.toString())
+            return
         }
     }
     
-    async function doTransfers(content, reward, sum_rshares, memo, broadcast) {
+    async function doTransfers(content, reward, sum_rshares, memo, broadcast, user, key) {
         let sum_transfered = 0;
         content.active_votes.sort((a,b) =>  {return b.rshares - a.rshares});
         for(let v of content.active_votes) {
-            log.debug("user " + v.voter);
-            if(global.CONFIG.bypass.includes(v.voter)) {
-                log.info("bypass transfer to " + v.voter);
+            consoleLog("user " + v.voter);
+            if(bypass.includes(v.voter)) {
+                consoleLog("bypass transfer to " + v.voter)
                 continue;
             }
-            const rshares = v.rshares / 1000000;
-            log.debug("rshares = " + rshares);
+            const rshares = v.rshares / 1000000
+            console.log("rshares = " + rshares)
             if(rshares <= 0) {
-                log.info(v.voter + " flagged, no payout");
+                consoleLog(v.voter + " Was no payout from this user");
                 continue;
             }
             let payout = rshares * reward / sum_rshares;
             if(payout < 0.001) {
-                log.debug("user's calculated payout < 0.001, increased to 0.001");
+                consoleLog("user's calculated payout < 0.001, increased to 0.001")
                 payout = 0.001;
             }
-            log.debug("user's payout " + payout);
+            consoleLog("user's payout " + payout);
             sum_transfered += payout;
             const amount = payout.toFixed(3) + " GBG";
-            await transfer(v.voter, amount, memo, broadcast);
+            await transfer(v.voter, amount, memo, broadcast, user, key)
         }
-        log.info("\n\ntransferred " + sum_transfered.toFixed(3) + " GBG");
+        consoleLog("\n\ntransferred " + sum_transfered.toFixed(3) + " GBG")
+        consoleLog("Список аккаунтов, которым перевод не сделан")
+        failed.map( function(val,i,ar){
+            consoleLogNoLinum(val)
+        })
     }
     
 //-----------------------------------------------------------------------------
 // run
 async function run(e) {
-    console.log("Bypass", bypass)
+    //console.log("Bypass", bypass)
     //e.target.disabled = true;
-    let permlink = getPermlink();
-    let accname = getAccname();
-    let pKey = getPkey();
+    var broadcast = getBroadcast()
+    const node = getNode()
+    let permlink = getPermlink()
+    let accname = getAccname()
+    let pkey = getPkey()
     let PERCENT = getPercent()
-    if(!permlink || !accname || !pKey) {
+    if(!permlink || !accname || !pkey) {
         console.log("Enter valid data")
+        consoleLog("Enter Valid data \n")
+        lines = 1 //сброс счетчика консоли
         return 0
     }
     const user_gbg = await getUserGBG(accname);
     console.log("Баланс пользователя %d gbg",user_gbg)
+    consoleLog(`Баланс пользователя ${user_gbg} gbg`)
     const content = await getContent(accname, permlink)
     // console.log("Контент ",content)
     const infos = await collectInfos(accname, content)
     // console.log(infos)
-    console.log("found reward for the post " + infos.author_reward.toFixed(3) + " GBG" );
+    console.log("found reward for the post " + infos.author_reward.toFixed(3) + " GBG" )
+    consoleLog(`Found reward for the post ${infos.author_reward.toFixed(3)} GBG`)
     const reward = infos.author_reward * PERCENT / 100;
-    console.log("reward to pay " + reward.toFixed(3) + " GBG (" + PERCENT + "%)" );
+    console.log("reward to pay " + reward.toFixed(3) + " GBG (" + PERCENT + "%)" )
+    consoleLog(`Reward to pay ${reward.toFixed(3)} GBG (${PERCENT}%) `)
+
     
     if(reward > user_gbg) {
         log.error("!!!!  user balance is not enough for reward payout  !!!")
+        consoleLog(`!!!!  user balance is not enough for reward payout  !!! \n`)
+        lines = 1
         return 0
     }
     const memo = getMemo()
 
     const sum_rshares = sumRshares(content);
     console.log("Mrshares total ", sum_rshares)
+    consoleLog(`Mrshares total ${sum_rshares}`)
 
     if(!broadcast){
         console.log("No broadcast demo payments will be done")
+        consoleLog("No broadcast! Demo payments will be done")
     }
+    scanBypass()
 
-    await doTransfers(content, reward, sum_rshares, memo, broadcast);
+    await doTransfers(content, reward, sum_rshares, memo, broadcast, accname, pkey);
 
     // e.target.disabled = false
 }
+
+//--------------------------------------------------------------------------
+//clear button
+document.getElementById("clear-button").addEventListener("click", function(e) {
+    var area = document.getElementById("console")
+    area.value = ""
+    lines = 1
+})
 
 //--------------------------------------------------------------------------
 //click button
@@ -209,7 +271,17 @@ document.getElementById("perform").addEventListener("click", function(e) {
 //--------------------------------------------------------------------------
 //Memo
 function init() {
+    // set memo
     document.getElementsByName("memo")[0].value = "Выплата кураторской награды по принципу равного вознаграждения 50 на 50"
+    // set bypass
+    console.log(bypass)
+    var area = document.getElementsByName("exclude-text")[0]
+    console.log(area)
+    text = ""
+    bypass.forEach(function(element) {
+        text += (element + '\n')
+        area.value = text
+    }, this);
 }
 
 init()
