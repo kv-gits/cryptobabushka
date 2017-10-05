@@ -243,8 +243,8 @@ async function run(e) {
         lines = 1
         return 0
     }
-    const memo = getMemo()
-
+    const memo = getMemo() + ` https://golos.io/${content.parent_permlink}/@${content.author}/${content.permlink}`;
+    consoleLog(`Memo ${memo}`)
     const sum_rshares = sumRshares(content);
     console.log("Mrshares total ", sum_rshares)
     consoleLog(`Mrshares total ${sum_rshares}`)
