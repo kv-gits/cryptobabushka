@@ -144,6 +144,9 @@ function consoleLogNoLinum(line){
 
 //----------------------------------------------------------------------------
 // Перевод
+
+const timeout = ms => new Promise(res => setTimeout(res, ms))
+
 var failed = []
 async function transfer(voter, amount, memo, broadcast, user, key) {
         consoleLog("transfer " + amount + " to " + voter + " (" + memo + ")");
@@ -156,9 +159,13 @@ async function transfer(voter, amount, memo, broadcast, user, key) {
                     // var res = await golos.transfer(key, user, voter, amount, memo)
                     await makeTransfer(key, user, voter, amount, memo)
                     console.log("transfered", key, user, res)
+                    consoleLog("Wait 3 sec...")
+                    await timeout(3000)
                 } else {
                     console.log("no broadcasting, no transfer");
                     consoleLog("no broadcasting, no transfer")
+                    consoleLog("Wait 3 sec...")
+                    await timeout(3000)
                 }
                 sent = true;
             } catch(e) {
