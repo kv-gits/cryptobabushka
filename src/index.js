@@ -160,12 +160,14 @@ async function transfer(voter, amount, memo, broadcast, user, key) {
                     await makeTransfer(key, user, voter, amount, memo)
                     console.log("transfered", key, user, res)
                     consoleLog("Wait 3 sec...")
+                    updateBypassArea(voter)
                     await timeout(3000)
                 } else {
                     console.log("no broadcasting, no transfer");
                     consoleLog("no broadcasting, no transfer")
                     consoleLog("Wait 3 sec...")
-                    await timeout(3000)
+                    updateBypassArea(voter)
+                    //await timeout(3000)
                 }
                 sent = true;
             } catch(e) {
@@ -239,7 +241,7 @@ async function run(e) {
     // console.log(infos)
     console.log("found reward for the post " + infos.author_reward.toFixed(3) + " GBG" )
     consoleLog(`Found reward for the post ${infos.author_reward.toFixed(3)} GBG`)
-    const reward = infos.author_reward * PERCENT / 100;
+    const reward = infos.author_reward * PERCENT / 100
     console.log("reward to pay " + reward.toFixed(3) + " GBG (" + PERCENT + "%)" )
     consoleLog(`Reward to pay ${reward.toFixed(3)} GBG (${PERCENT}%) `)
 
@@ -266,6 +268,17 @@ async function run(e) {
 
     // e.target.disabled = false
 }
+
+//-----------------------------------------------------------------------------
+// Update Area
+function updateBypassArea(elem) {
+    var area = document.getElementsByName("exclude-text")[0]
+    var text = area.value
+    bypass.push(elem)
+    text += (elem + '\n')
+    area.value = text
+}
+
 
 //--------------------------------------------------------------------------
 //clear button
