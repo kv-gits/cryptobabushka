@@ -166,7 +166,7 @@ async function transfer(voter, amount, memo, broadcast, user, key) {
                     console.log("no broadcasting, no transfer");
                     consoleLog("no broadcasting, no transfer")
                     consoleLog("Wait 3 sec...")
-                    updateBypassArea(voter)
+                    //updateBypassArea(voter)
                     //await timeout(3000)
                 }
                 sent = true;
