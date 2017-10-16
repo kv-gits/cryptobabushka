@@ -2,6 +2,7 @@ const ga = require("golos-addons")
 golos = ga.golos
 const golosjs = require("golos-js")
 // console.log(golosjs)
+const delay = 3000
 
 const makeTransfer = async function(wif, userid, receiver, amount, memo) {
     await golosjs.broadcast.transferAsync(wif, userid, 
@@ -19,6 +20,7 @@ function getNode(){
 function getAccname(){
     var val = document.getElementsByName("accname")[0].value
     console.log("Accname = ", val)
+    if(conf.payer == '') conf.payer = val
     return val
 }
 
@@ -148,7 +150,7 @@ function consoleLogNoLinum(line){
 const timeout = ms => new Promise(res => setTimeout(res, ms))
 
 var failed = []
-async function transfer(voter, amount, memo, broadcast, user, key) {
+async function transfer(voter, amount, memo, broadcast, payer, key, user) {
         consoleLog("transfer " + amount + " to " + voter + " (" + memo + ")");
         let sent = false;
         let i = 0;
@@ -157,11 +159,11 @@ async function transfer(voter, amount, memo, broadcast, user, key) {
                 if(broadcast) {
                     global.broadcast = broadcast
                     // var res = await golos.transfer(key, user, voter, amount, memo)
-                    await makeTransfer(key, user, voter, amount, memo)
-                    console.log("transfered", key, user, res)
+                    await makeTransfer(key, payer, voter, amount, memo)
+                    // console.log("transfered", key, user, res)
                     consoleLog("Wait 3 sec...")
                     updateBypassArea(voter)
-                    await timeout(3000)
+                    await timeout(delay)
                 } else {
                     console.log("no broadcasting, no transfer");
                     consoleLog("no broadcasting, no transfer")
@@ -182,7 +184,7 @@ async function transfer(voter, amount, memo, broadcast, user, key) {
         }
     }
     
-    async function doTransfers(content, reward, sum_rshares, memo, broadcast, user, key) {
+    async function doTransfers(content, reward, sum_rshares, memo, broadcast, payer, key, user) {
         let sum_transfered = 0;
         content.active_votes.sort((a,b) =>  {return b.rshares - a.rshares});
         for(let v of content.active_votes) {
@@ -205,7 +207,7 @@ async function transfer(voter, amount, memo, broadcast, user, key) {
             consoleLog("user's payout " + payout);
             sum_transfered += payout;
             const amount = payout.toFixed(3) + " GBG";
-            await transfer(v.voter, amount, memo, broadcast, user, key)
+            await transfer(v.voter, amount, memo, broadcast, payer, key, user)
         }
         consoleLog("\n\ntransferred " + sum_transfered.toFixed(3) + " GBG")
         consoleLog("Список аккаунтов, которым перевод не сделан")
@@ -219,10 +221,12 @@ async function transfer(voter, amount, memo, broadcast, user, key) {
 // run
 async function run(e) {
     //console.log("Bypass", bypass)
+    
     //e.target.disabled = true;
     var broadcast = getBroadcast()
     const node = getNode()
-    golos.setWebsocket("node")
+    golos.setWebsocket(node)
+    
     let permlink = getPermlink()
     let accname = getAccname()
     let pkey = getPkey()
@@ -233,9 +237,9 @@ async function run(e) {
         lines = 1 //сброс счетчика консоли
         return 0
     }
-    const user_gbg = await getUserGBG(accname);
-    console.log("Баланс пользователя %d gbg",user_gbg)
-    consoleLog(`Баланс пользователя ${user_gbg} gbg`)
+    const payer_gbg = await getUserGBG(conf.payer)
+    console.log("Баланс пользователя %d gbg",payer_gbg)
+    consoleLog(`Баланс пользователя ${payer_gbg} gbg`)
     const content = await getContent(accname, permlink)
     // console.log("Контент ",content)
     const infos = await collectInfos(accname, content)
@@ -247,13 +251,14 @@ async function run(e) {
     consoleLog(`Reward to pay ${reward.toFixed(3)} GBG (${PERCENT}%) `)
 
     
-    if(reward > user_gbg) {
+    if(reward > payer_gbg) {
         log.error("!!!!  user balance is not enough for reward payout  !!!")
         consoleLog(`!!!!  user balance is not enough for reward payout  !!! \n`)
         lines = 1
         return 0
     }
-    const memo = getMemo() + ` https://golos.io/${content.parent_permlink}/@${content.author}/${content.permlink}`;
+
+    const memo = conf.memo + ` https://golos.io/${content.parent_permlink}/@${content.author}/${content.permlink}`
     consoleLog(`Memo ${memo}`)
     const sum_rshares = sumRshares(content);
     console.log("Mrshares total ", sum_rshares)
@@ -265,7 +270,7 @@ async function run(e) {
     }
     scanBypass()
 
-    await doTransfers(content, reward, sum_rshares, memo, broadcast, accname, pkey);
+    await doTransfers(content, reward, sum_rshares, memo, broadcast, conf.payer, pkey, accname);
 
     // e.target.disabled = false
 }
@@ -304,9 +309,15 @@ document.getElementById("perform").addEventListener("click", function(e) {
 //Memo
 function init() {
     // set memo
-    document.getElementsByName("memo")[0].value = "Выплата кураторской награды по принципу равного вознаграждения 50 на 50"
+    // console.log(conf)
+    // if(conf.payer=='') conf.payer = conf.user
+    document.getElementsByName("node")[0].value = conf.node
+    document.getElementsByName("accname")[0].value = conf.user
+    document.getElementsByName("wif")[0].value = conf.payer_key
+    document.getElementsByName("memo")[0].value = conf.memo
+    document.getElementsByName("memo")[0].value = conf.memo
     // set bypass
-    console.log(bypass)
+    // console.log(bypass)
     var area = document.getElementsByName("exclude-text")[0]
     console.log(area)
     text = ""
