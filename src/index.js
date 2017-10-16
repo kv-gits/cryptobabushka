@@ -222,6 +222,7 @@ async function run(e) {
     //e.target.disabled = true;
     var broadcast = getBroadcast()
     const node = getNode()
+    golos.setWebsocket("node")
     let permlink = getPermlink()
     let accname = getAccname()
     let pkey = getPkey()
