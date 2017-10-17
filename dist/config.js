@@ -3,7 +3,7 @@ var conf = {}
 conf.user = ''
 conf.payer = '' // не менять, если не знаешь зачем
 conf.payer_key = ''
-conf.node = 'wss://ws.golos.io'
+conf.node = 'wss://api.golos.cf'
 conf.memo = 'Выплата кураторской награды по принципу равного вознаграждения 50 на 50'
 
 var bypass = [
