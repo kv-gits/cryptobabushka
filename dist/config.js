@@ -95,5 +95,6 @@ var bypass = [
     "yudina-cat",
     "lynx",
     "aleco",
+    "dr2073",
     ""
 ]
