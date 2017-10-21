@@ -96,5 +96,6 @@ var bypass = [
     "lynx",
     "aleco",
     "dr2073",
+    "dobryj.kit",
     ""
 ]

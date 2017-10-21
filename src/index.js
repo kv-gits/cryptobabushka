@@ -178,7 +178,7 @@ async function transfer(voter, amount, memo, broadcast, payer, key, user) {
             }
         }    
         if(i >= 30) {
-            log.error("was unable to transfer after 30 tries, exiting")
+            consoleLog("was unable to transfer after 30 tries, exiting")
             failed.push(voter.toString())
             return
         }
@@ -241,7 +241,14 @@ async function run(e) {
     console.log("Баланс пользователя %d gbg",payer_gbg)
     consoleLog(`Баланс пользователя ${payer_gbg} gbg`)
     const content = await getContent(accname, permlink)
-    // console.log("Контент ",content)
+    // console.log("Контент ",content.mode)
+    if(content.mode == 'first_payout') {
+        let msg = `Вы слишком рано начинаете выплаты по программе 50-50. Дождитесь зачисления награды за пост на кошелек!`
+        console.log(msg)
+        consoleLog(msg)
+        lines = 1
+        return 0
+    }
     const infos = await collectInfos(accname, content)
     // console.log(infos)
     console.log("found reward for the post " + infos.author_reward.toFixed(3) + " GBG" )
@@ -249,10 +256,8 @@ async function run(e) {
     const reward = infos.author_reward * PERCENT / 100
     console.log("reward to pay " + reward.toFixed(3) + " GBG (" + PERCENT + "%)" )
     consoleLog(`Reward to pay ${reward.toFixed(3)} GBG (${PERCENT}%) `)
-
     
     if(reward > payer_gbg) {
-        log.error("!!!!  user balance is not enough for reward payout  !!!")
         consoleLog(`!!!!  user balance is not enough for reward payout  !!! \n`)
         lines = 1
         return 0
