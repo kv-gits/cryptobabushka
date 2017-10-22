@@ -35,6 +35,12 @@ async function comment(userid, key, parent_author, parent_permlink, comment) {
         
         return dateFormat(new Date(ms), "dd.mm.yyyy h:MM:ss");
     }
+
+    module.exports.getTs = function(strtime){
+        let ts = (new Date(strtime)).getTime() / 1000
+        // console.log(ts)
+        return ts
+    }
     
     module.exports.isBlacklisted = function(userid) {
         

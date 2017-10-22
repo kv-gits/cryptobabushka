@@ -1,6 +1,7 @@
 const ga = require("golos-addons")
 golos = ga.golos
 const golosjs = require("golos-js")
+const gu = require('./golos_utils')
 // console.log(golosjs)
 const delay = 3000
 
@@ -102,6 +103,7 @@ async function getUserGBG(USER) {
     const user = await golos.getAccount(USER);
     if(!user) {
         console.log("account " + USER + " does not exists!")
+        consoleLog(`Аккаунт не найден`)
     }
     console.log(user)
     return parseFloat(user.sbd_balance.split(" ")[0]);
@@ -185,7 +187,8 @@ async function transfer(voter, amount, memo, broadcast, payer, key, user) {
     }
     
     async function doTransfers(content, reward, sum_rshares, memo, broadcast, payer, key, user) {
-        let sum_transfered = 0;
+        let sum_transfered = 0
+        const pay_time = gu.getTs(content.last_payout)
         content.active_votes.sort((a,b) =>  {return b.rshares - a.rshares});
         for(let v of content.active_votes) {
             consoleLog("user " + v.voter);
@@ -193,6 +196,14 @@ async function transfer(voter, amount, memo, broadcast, payer, key, user) {
                 consoleLog("bypass transfer to " + v.voter)
                 continue;
             }
+            
+            const vote_time = gu.getTs(v.time)
+            if(pay_time < vote_time) {
+                consoleLog(`${v.voter} проголосовал после зачисления награды. Возврат отменен.`)
+                continue
+            }
+            
+
             const rshares = v.rshares / 1000000
             console.log("rshares = " + rshares)
             if(rshares <= 0) {
@@ -221,7 +232,7 @@ async function transfer(voter, amount, memo, broadcast, payer, key, user) {
 // run
 async function run(e) {
     //console.log("Bypass", bypass)
-    
+    let msg = ``
     //e.target.disabled = true;
     var broadcast = getBroadcast()
     const node = getNode()
@@ -241,9 +252,16 @@ async function run(e) {
     console.log("Баланс пользователя %d gbg",payer_gbg)
     consoleLog(`Баланс пользователя ${payer_gbg} gbg`)
     const content = await getContent(accname, permlink)
-    // console.log("Контент ",content.mode)
-    if(content.mode == 'first_payout') {
-        let msg = `Вы слишком рано начинаете выплаты по программе 50-50. Дождитесь зачисления награды за пост на кошелек!`
+    if(!content){
+        msg = `Не удалось получить данные о контенте. Проверьте имя аккаунта и permlink. И повторите перевод`
+        consoleLog(msg)
+    }
+    const last_payout = gu.getTs(content.last_payout)
+    msg = `Время получения награды ${content.last_payout}`
+    console.log(msg)
+    consoleLog(msg)
+    if(content.mode != 'second_payout') {
+        msg = `Вы слишком рано начинаете выплаты по программе 50-50. Дождитесь зачисления награды за пост на кошелек!`
         console.log(msg)
         consoleLog(msg)
         lines = 1
