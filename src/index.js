@@ -2,6 +2,10 @@ const ga = require("golos-addons")
 golos = ga.golos
 const golosjs = require("golos-js")
 const gu = require('./golos_utils')
+var pjson = require('./../package.json');
+console.log(pjson.version);
+
+const version = "0.1.0"
 // console.log(golosjs)
 const delay = 3000
 
@@ -332,6 +336,8 @@ document.getElementById("perform").addEventListener("click", function(e) {
 //Memo
 function init() {
     // set memo
+    document.title = `Cryprobabushka v${version}`
+    consoleLog(`Cryprobabushka v${version}`)
     // console.log(conf)
     // if(conf.payer=='') conf.payer = conf.user
     document.getElementsByName("node")[0].value = conf.node
