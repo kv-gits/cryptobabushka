@@ -3,9 +3,9 @@ golos = ga.golos
 const golosjs = require("golos-js")
 const gu = require('./golos_utils')
 var pjson = require('./../package.json');
-console.log(pjson.version);
+console.log(pjson);
 
-const version = "0.1.0"
+const version = pjson.version
 // console.log(golosjs)
 const delay = 3000
 
@@ -250,6 +250,7 @@ async function run(e) {
         console.log("Enter valid data")
         consoleLog("Enter Valid data \n")
         lines = 1 //сброс счетчика консоли
+        activateBtn(true)
         return 0
     }
     const payer_gbg = await getUserGBG(conf.payer)
@@ -259,6 +260,8 @@ async function run(e) {
     if(!content){
         msg = `Не удалось получить данные о контенте. Проверьте имя аккаунта и permlink. И повторите перевод`
         consoleLog(msg)
+        activateBtn(true)
+        return 0
     }
     const last_payout = gu.getTs(content.last_payout)
     msg = `Время получения награды ${content.last_payout}`
@@ -269,6 +272,7 @@ async function run(e) {
         console.log(msg)
         consoleLog(msg)
         lines = 1
+        activateBtn(true)
         return 0
     }
     const infos = await collectInfos(accname, content)
@@ -282,6 +286,7 @@ async function run(e) {
     if(reward > payer_gbg) {
         consoleLog(`!!!!  user balance is not enough for reward payout  !!! \n`)
         lines = 1
+        activateBtn(true)
         return 0
     }
 
@@ -298,8 +303,12 @@ async function run(e) {
     scanBypass()
 
     await doTransfers(content, reward, sum_rshares, memo, broadcast, conf.payer, pkey, accname);
-
+    activateBtn(true)
     // e.target.disabled = false
+}
+
+const activateBtn = function(isActive){
+    document.getElementById("perform").disabled = !isActive
 }
 
 //-----------------------------------------------------------------------------
@@ -325,6 +334,7 @@ document.getElementById("clear-button").addEventListener("click", function(e) {
 //click button
 var USER, usergbg, permlink, broadcast
 document.getElementById("perform").addEventListener("click", function(e) {
+    activateBtn(false)
     run(e);
 })
 
