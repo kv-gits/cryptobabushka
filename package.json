@@ -7,7 +7,8 @@
   "author": "kvg",
   "dependencies": {
     "golos-addons": "^1.0.4",
-    "golos-js": "^0.5.28"
+    "golos-js": "^0.5.28",
+    "mithril": "^1.1.5"
   },
   "devDependencies": {
     "css-loader": "^0.28.7",

@@ -171,7 +171,7 @@ async function transfer(voter, amount, memo, broadcast, payer, key, user) {
                     updateBypassArea(voter)
                     await timeout(delay)
                 } else {
-                    console.log("no broadcasting, no transfer");
+                    console.log("no broadcasting, no transfer")
                     consoleLog("no broadcasting, no transfer")
                     consoleLog("Wait 3 sec...")
                     //updateBypassArea(voter)
@@ -200,14 +200,11 @@ async function transfer(voter, amount, memo, broadcast, payer, key, user) {
                 consoleLog("bypass transfer to " + v.voter)
                 continue;
             }
-            
             const vote_time = gu.getTs(v.time)
             if(pay_time < vote_time) {
                 consoleLog(`${v.voter} проголосовал после зачисления награды. Возврат отменен.`)
                 continue
             }
-            
-
             const rshares = v.rshares / 1000000
             console.log("rshares = " + rshares)
             if(rshares <= 0) {
@@ -307,8 +304,116 @@ async function run(e) {
     // e.target.disabled = false
 }
 
-const activateBtn = function(isActive){
+const activateBtn = async function(isActive){
     document.getElementById("perform").disabled = !isActive
+    document.getElementById("go-beau").disabled = !isActive
+}
+
+const run_right = async function() {
+        console.log("Стремление к прекрасному")
+        let msg = ``
+        //e.target.disabled = true;
+        var broadcast = false
+        const node = getNode()
+        golos.setWebsocket(node)
+        let permlink = getPermlink()
+        let accname = getAccname()
+        let pkey = getPkey()
+        let PERCENT = getPercent()
+        if(!permlink || !accname) {
+            console.log("Enter valid data")
+            consoleLog("Enter Valid data \n")
+            lines = 1 //сброс счетчика консоли
+            activateBtn(true)
+            return 0
+        }
+        const user = await golos.getAccount(accname)
+        // console.log("User", parseFloat(user.vesting_shares.split(" ")[0]))
+        // consoleLog(`Баланс пользователя ${payer_gbg} gbg`)
+        const content = await getContent(accname, permlink)
+        if(!content){
+            msg = `Не удалось получить данные о контенте. Проверьте имя аккаунта и permlink.`
+            consoleLog(msg)
+            activateBtn(true)
+            return 0
+        }
+        const last_payout = gu.getTs(content.last_payout)
+        msg = `Время получения награды ${content.last_payout}`
+        console.log(msg)
+        consoleLog(msg)
+        // if(content.mode != 'second_payout') {
+        //     msg = `Вы слишком рано начинаете выплаты по программе 50-50. Дождитесь зачисления награды за пост на кошелек!`
+        //     console.log(msg)
+        //     consoleLog(msg)
+        //     lines = 1
+        //     // activateBtn(true)
+        //     // return 0
+        // }
+        const infos = await collectInfos(accname, content)
+        // console.log(infos)
+        console.log("found reward for the post " + infos.author_reward.toFixed(3) + " GBG" )
+        consoleLog(`Found reward for the post ${infos.author_reward.toFixed(3)} GBG`)
+        const reward = infos.author_reward
+        console.log("reward to pay " + reward.toFixed(3) + " GBG")
+        consoleLog(`Reward to pay ${reward.toFixed(3)} GBG`)
+        // claculate vesting_shares
+        let vs = []
+        var max_gests = 0
+        
+        for(v of content.active_votes) {
+            // console.log(v)
+            var gests = await gu.getUserGests(v.voter)
+            var acc = await golos.getAccount(v.voter)
+            if(Number(gests)>Number(max_gests)) max_gests = Number(gests)
+            console.log(`Acc ${v.voter} gests ${gests} , max_gests = ${max_gests}`)
+            consoleLog(`Get data for user ${v.voter}`)
+            let res = {}
+            res.acc = v.voter
+            res.gests = gests
+            vs.push(res)
+        }
+        // console.log(vs)
+        const vote_num = vs.length
+        const aver_part = reward / vote_num
+        let total_pay = 0
+        console.log(aver_part)
+        for(let v of vs) {
+            // console.log(v)
+            let sigmoid = getSigmoid(v.gests, max_gests)
+            // console.log(`Sigmoid = ${sigmoid}`)
+            let user_reward = aver_part * sigmoid
+            v.user_reward = user_reward
+            total_pay+=user_reward
+            
+        }
+        let dif = Math.abs(total_pay - reward)
+        
+        let addpay = dif / vote_num
+        console.log(`Dif = ${addpay}`)
+        total_pay = 0;
+        for(let v of vs){
+            v.user_reward += addpay
+            total_pay += v.user_reward
+            // console.log(v)
+            console.log(`User ${v.acc} SG = ${v.gests}, payment = ${v.user_reward}`)
+            consoleLog(`User ${v.acc} SG = ${v.gests}, payment = ${v.user_reward}`)
+        }
+        console.log(`Total pay is ${total_pay}, count pay is ${reward}`)
+        consoleLog(`Total pay is ${total_pay}, counted pay is ${reward}`)
+        activateBtn(true)
+        // e.target.disabled = false
+
+        
+}
+
+
+//-----------------------------------------------------------------------------
+// get sigmoid
+function getSigmoid(val, maxval){
+    let part = val / maxval
+    console.log("Part = ", part, val, maxval)
+    let s = 6*part
+    return 1/(1+Math.pow(Math.E, -s))
 }
 
 //-----------------------------------------------------------------------------
@@ -328,6 +433,13 @@ document.getElementById("clear-button").addEventListener("click", function(e) {
     var area = document.getElementById("console")
     area.value = ""
     lines = 1
+})
+
+document.getElementById("go-beau").addEventListener("click", function(e) {
+    var area = document.getElementById("console")
+    area.value = ""
+    lines = 1
+    run_right()
 })
 
 //--------------------------------------------------------------------------
