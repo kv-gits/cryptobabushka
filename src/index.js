@@ -2,7 +2,8 @@ const ga = require("golos-addons")
 golos = ga.golos
 const golosjs = require("golos-js")
 const gu = require('./golos_utils')
-var pjson = require('./../package.json');
+const gb = require('./go_beau')
+var pjson = require('./../package.json')
 console.log(pjson);
 
 const version = pjson.version
@@ -357,65 +358,16 @@ const run_right = async function() {
         console.log("reward to pay " + reward.toFixed(3) + " GBG")
         consoleLog(`Reward to pay ${reward.toFixed(3)} GBG`)
         // claculate vesting_shares
-        let vs = []
-        var max_gests = 0
-        
-        for(v of content.active_votes) {
-            // console.log(v)
-            var gests = await gu.getUserGests(v.voter)
-            var acc = await golos.getAccount(v.voter)
-            if(Number(gests)>Number(max_gests)) max_gests = Number(gests)
-            console.log(`Acc ${v.voter} gests ${gests} , max_gests = ${max_gests}`)
-            consoleLog(`Get data for user ${v.voter}`)
-            let res = {}
-            res.acc = v.voter
-            res.gests = gests
-            vs.push(res)
+        let result = []
+        // await gb.calculate_beau(reward, content.active_votes, result)
+        await gb.calculate_beau_linear(reward, content.active_votes, result)
+        for(let item of result) {
+            consoleLog(`User ${item.acc} SG = ${item.gests} Reward = ${item.user_reward}`)
+            await timeout(500)
         }
-        // console.log(vs)
-        const vote_num = vs.length
-        const aver_part = reward / vote_num
-        let total_pay = 0
-        console.log(aver_part)
-        for(let v of vs) {
-            // console.log(v)
-            let sigmoid = getSigmoid(v.gests, max_gests)
-            // console.log(`Sigmoid = ${sigmoid}`)
-            let user_reward = aver_part * sigmoid
-            v.user_reward = user_reward
-            total_pay+=user_reward
-            
-        }
-        let dif = Math.abs(total_pay - reward)
-        
-        let addpay = dif / vote_num
-        console.log(`Dif = ${addpay}`)
-        total_pay = 0;
-        for(let v of vs){
-            v.user_reward += addpay
-            total_pay += v.user_reward
-            // console.log(v)
-            console.log(`User ${v.acc} SG = ${v.gests}, payment = ${v.user_reward}`)
-            consoleLog(`User ${v.acc} SG = ${v.gests}, payment = ${v.user_reward}`)
-        }
-        console.log(`Total pay is ${total_pay}, count pay is ${reward}`)
-        consoleLog(`Total pay is ${total_pay}, counted pay is ${reward}`)
         activateBtn(true)
         // e.target.disabled = false
-
-        
 }
-
-
-//-----------------------------------------------------------------------------
-// get sigmoid
-function getSigmoid(val, maxval){
-    let part = val / maxval
-    console.log("Part = ", part, val, maxval)
-    let s = 6*part
-    return 1/(1+Math.pow(Math.E, -s))
-}
-
 //-----------------------------------------------------------------------------
 // Update Area
 function updateBypassArea(elem) {
