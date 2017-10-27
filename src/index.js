@@ -360,7 +360,7 @@ const run_right = async function() {
         // claculate vesting_shares
         let result = []
         // await gb.calculate_beau(reward, content.active_votes, result)
-        await gb.calculate_beau_linear(reward, content.active_votes, result)
+        await gb.calculate_beau_sigmoida(reward, content.active_votes, result)
         for(let item of result) {
             consoleLog(`User ${item.acc} SG = ${item.gests} Reward = ${item.user_reward}`)
             await timeout(500)

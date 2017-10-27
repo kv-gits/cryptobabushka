@@ -82,3 +82,39 @@ const calculate_beau_linear = async function calculate_beau(rewards, active_vote
 }
 
 module.exports.calculate_beau_linear = calculate_beau_linear
+
+/// calculate_beau
+/// results - array of objects
+const calculate_beau_sigmoida = async function calculate_beau(rewards, active_votes, result) {
+    let max_gests = 0
+    let total_gests = 0
+    for(v of active_votes){
+        var gests = await gu.getUserGests(v.voter)
+        var acc = await golos.getAccount(v.voter)
+        total_gests += Number(gests)
+        console.log(`Acc ${v.voter} gests ${gests}`)
+        let item = {}
+        item.acc = v.voter
+        item.gests = Number(gests)
+        result.push(item)
+    }
+    let all_share = 0
+    for(let v of result) {
+        console.log(v.gests, total_gests, rewards)
+        v.s = getSigmoid(v.gests, total_gests)
+        v.sigmo_share = (v.s * v.gests)
+        all_share += (v.s * v.gests)
+        v.user_reward = v.gests/total_gests*rewards
+        console.log(v)
+    }
+    all_share += getSigmoid(total_gests, total_gests)
+
+    console.log(rewards)
+    for(let v of result) {
+        console.log(v.gests, total_gests, rewards)
+        v.user_reward = v.sigmo_share / all_share * rewards
+        console.log(v)
+    }
+}
+
+module.exports.calculate_beau_sigmoida = calculate_beau_sigmoida
