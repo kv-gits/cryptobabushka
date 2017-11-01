@@ -105,5 +105,9 @@ var bypass = [
     "dobryj.kit",
     "azrail",
     "snooze",
+    "monofenix",
+    "antonkostroma",
+    "ondulyansion",
+    "anela",
     ""
 ]
