@@ -8,6 +8,7 @@ conf.memo = 'Выплата кураторской награды по прин�
 
 var bypass = [
     "on0tole",
+    "dobryj.kit",
     "v0id",
     "robot",
     "vik",
@@ -102,7 +103,6 @@ var bypass = [
     "lynx",
     "aleco",
     "dr2073",
-    "dobryj.kit",
     "azrail",
     "snooze",
     "monofenix",
