@@ -59,6 +59,7 @@ var bypass = [
     "from",
     "coinloan",
     "gmail",
+    "smolalit",
     "protonmail",
     "dittrex",
     "battlehub",
