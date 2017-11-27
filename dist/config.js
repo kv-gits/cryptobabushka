@@ -118,5 +118,6 @@ var bypass = [
     "rusteemitblog", 
     "uplift", 
     "smailer",
+    "booster",
     ""
 ]
