@@ -110,5 +110,13 @@ var bypass = [
     "antonkostroma",
     "ondulyansion",
     "anela",
+    "golos.loto", 
+    "xanoxt", 
+    "blockchained", 
+    "mayamarinero", 
+    "whalepunk", 
+    "rusteemitblog", 
+    "uplift", 
+    "smailer",
     ""
 ]
