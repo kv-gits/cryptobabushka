@@ -213,14 +213,18 @@ async function transfer(voter, amount, memo, broadcast, payer, key, user) {
                 continue;
             }
             let payout = rshares * reward / sum_rshares;
-            if(payout < 0.001) {
-                consoleLog("user's calculated payout < 0.001, increased to 0.001")
-                payout = 0.001;
-            }
+            // if(payout < 0.001) {
+            //     consoleLog("user's calculated payout < 0.001, increased to 0.001")
+            //     payout = 0.001;
+            // }
             consoleLog("user's payout " + payout);
             sum_transfered += payout;
             const amount = payout.toFixed(3) + " GBG";
-            await transfer(v.voter, amount, memo, broadcast, payer, key, user)
+            if(payout >= 0.001){
+                await transfer(v.voter, amount, memo, broadcast, payer, key, user)
+            } else {
+                consoleLog("Bypass payout < 0.001 to user ", v.voter)
+            }
         }
         consoleLog("\n\ntransferred " + sum_transfered.toFixed(3) + " GBG")
         consoleLog("Список аккаунтов, которым перевод не сделан")
