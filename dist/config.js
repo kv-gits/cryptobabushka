@@ -90,6 +90,7 @@ var bypass = [
     "val",
     "econmag",
     "golosmedia",
+    "upit",
     "izbrannoe",
     "promo",
     "golos-api",

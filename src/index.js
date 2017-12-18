@@ -4,7 +4,7 @@ const golosjs = require("golos-js")
 const gu = require('./golos_utils')
 const gb = require('./go_beau')
 var pjson = require('./../package.json')
-console.log(pjson);
+console.log(pjson)
 
 const version = pjson.version
 // console.log(golosjs)
@@ -12,7 +12,7 @@ const delay = 3000
 
 const makeTransfer = async function(wif, userid, receiver, amount, memo) {
     await golosjs.broadcast.transferAsync(wif, userid, 
-        receiver, amount, memo);
+        receiver, amount, memo)
 }
 
 function getNode(){
